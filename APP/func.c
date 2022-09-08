@@ -4,12 +4,13 @@
 #include "../MCAL/TIMER/TIMER_INTERFACE.h"
 #include "../MCAL/GI/GI_INTERFACE.h"
 #include "../HAL/LCD/LCD_INTERFACE.h"
-#include "../HAL/KEYPAD/KPD_interface.h"
-#include "../HAL/KEYPAD/KPD_config.h"
 #include "../HAL/KEYPAD/KPD_PRIVATE.h"
 #include "../MCAL/ADC/ADC_INTERFACE.h"
 #include "../HAL/LCD/LCD_CONFIG.h"
 #include "avr/delay.h"
+
+#include "../HAL/KEYPAD/KPD_CONFIG.h"
+#include "../HAL/KEYPAD/KPD_INTERFACE.h"
 void openDoor(void);
 void openFan(void);
 u8 getOption(void);
@@ -29,7 +30,10 @@ void room3Off(void);
 void options(void);
 void WrongPass(void);
 void rigthPass(void);
+void wrongOption(void);
 void closeFan(void);
+void ldrCheck(void);
+
 u32 savedpass1 = 1111;
 u32 savedpass2 = 2222;
 u32 savedpass3 = 0000;
@@ -85,7 +89,7 @@ void closeFan(void)
 u8 Login(void)
 {
 	loginInit();
-
+	ldrCheck();
 	u8 user = getOption();  //get user from keypad
 	LCD_WriteCommand(clear);
 	LCD_GoToXY(0, 0);
@@ -164,8 +168,7 @@ u8 Login(void)
 
 	}
 	default :
-		LCD_WriteString("Wrong Option");
-		_delay_ms(100);
+		wrongOption();
 		return 0 ;
 	}
 
@@ -304,6 +307,7 @@ void options(void)
 			_delay_ms(20);
 			options();
 		}
+		break ;
 	}
 
 	case  Back :
@@ -425,6 +429,10 @@ void roomOptions(void)
 		}
 		break;
 	}
+	default :
+	{
+		wrongOption();
+	}
 	}
 	LCD_WriteCommand(clear);
 	options();
@@ -446,3 +454,29 @@ void WrongPass(void)
 	LCD_WriteCommand(clear);
 
 }
+void ldrCheck()
+{
+	u16 reading = MADC_u8StartConversion(ADC_CHANNEL_1);
+		u16 volt_reading =((reading*5000UL)/1024);
+		if(volt_reading < 3000 )
+		{
+			room1On();
+			room2On();
+			room3On();
+
+		}
+		else
+		{
+			room1Off();
+			room2Off();
+			room3Off();
+
+		}
+}
+void wrongOption(void)
+{
+	LCD_WriteString("Wrong Option");
+			_delay_ms(100);
+	LCD_WriteCommand(clear);
+}
+

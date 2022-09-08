@@ -4,10 +4,11 @@
 #include "../MCAL/GI/GI_INTERFACE.h"
 #include "../HAL/LCD/LCD_INTERFACE.h"
 #include "../HAL/LCD/LCD_CONFIG.h"
-#include "../HAL/KEYPAD/KPD_interface.h"
-#include "../HAL/KEYPAD/KPD_config.h"
 #include "../MCAL/ADC/ADC_INTERFACE.h"
 #include "avr/delay.h"
+
+#include "../HAL/KEYPAD/KPD_CONFIG.h"
+#include "../HAL/KEYPAD/KPD_INTERFACE.h"
 
 int main ()
 {
@@ -33,6 +34,9 @@ int main ()
 
 
 	LCD_Init();
+	MADC_voidInit(); // initial the ADC
+	DIO_SetPinDirection(PORTA, DIO_PIN1, DIO_INPUT); //ldr input
+
 	u8 flag =0 ;
 	while (flag ==0 )
 	{
